@@ -3,6 +3,7 @@ import { ContainerProps } from "../api/images";
 import { EllipsisVertical, Play, Trash2 } from "lucide-react";
 import Seperator from "../components/global/Seperator";
 import { DeleteImageButton } from "./DeleteImageModal";
+import { StartContainerModal } from "./StartContainerModal";
 
 const ImageCard = ({
   size,
@@ -21,7 +22,9 @@ const ImageCard = ({
       <div className="">{lowestTime}</div>
       <div className="flex gap-2 items-center justify-between">
         <div className="flex items-center gap-4">
-          <Play className="w-4 h-4" />
+          <StartContainerModal cont={{ imageName: r.RepoTags[0] }}>
+            <Play className="w-4 h-4" />
+          </StartContainerModal>
           <EllipsisVertical className="w-4 h-4" />
         </div>
         <div className="flex items-center">
