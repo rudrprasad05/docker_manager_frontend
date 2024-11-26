@@ -1,3 +1,10 @@
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
 export const handleFormtTime = (created: number) => {
   const now = new Date();
   const eventDate = new Date(created * 1000); // Convert Unix timestamp to milliseconds

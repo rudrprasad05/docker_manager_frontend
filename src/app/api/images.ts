@@ -21,3 +21,13 @@ export const GetAllImages = async () => {
   });
   return res;
 };
+
+export const DeleteImageById = async (id: string) => {
+  const res = await axios
+    .delete(API + "/images/delete", { params: { id } })
+    .then((r) => {
+      return r;
+    });
+
+  return res;
+};

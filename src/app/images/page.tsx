@@ -5,7 +5,7 @@ import { ContainerProps, GetAllImages } from "../api/images";
 import { DotSquare, EllipsisVertical, Play, Trash2 } from "lucide-react";
 import Seperator from "../components/global/Seperator";
 import ImageCard from "./ImageCard";
-import { handleFormtTime } from "@/utils/libs";
+import { handleFormtTime } from "@/lib/utils";
 
 const page = async () => {
   const res = await GetAllImages();

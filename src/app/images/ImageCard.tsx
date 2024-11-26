@@ -2,6 +2,7 @@ import React from "react";
 import { ContainerProps } from "../api/images";
 import { EllipsisVertical, Play, Trash2 } from "lucide-react";
 import Seperator from "../components/global/Seperator";
+import { DeleteImageButton } from "./DeleteImageModal";
 
 const ImageCard = ({
   size,
@@ -25,7 +26,9 @@ const ImageCard = ({
         </div>
         <div className="flex items-center">
           <Seperator />
-          <Trash2 className="w-4 h-4" />
+          <DeleteImageButton id={r.Id}>
+            <Trash2 className="w-4 h-4" />
+          </DeleteImageButton>
         </div>
       </div>
     </div>
