@@ -1,4 +1,5 @@
 import axios from "axios";
+import { RunContProps } from "../images/StartContainerModal";
 
 const API = "http://localhost:8081/docker";
 
@@ -15,10 +16,33 @@ export type ContainerProps = {
   VirtualSize: number; //`json:"VirtualSize,omitempty"`
 };
 
+interface CmdPort {
+  cmd: string[];
+  port: string[];
+}
+
 export const GetAllImages = async () => {
-  const res = await axios.get(API + "/images/list").then((r) => {
-    return r;
-  });
+  const res = await axios
+    .get(API + "/images/list")
+    .then((r) => {
+      return r;
+    })
+    .catch((e) => {
+      throw new Error(e);
+    });
+  return res;
+};
+
+export const GetAllContainers = async () => {
+  const res = await axios
+    .get(API + "/container/list")
+    .then((r) => {
+      return r;
+    })
+    .catch((e) => {
+      console.log(e);
+      throw new Error(e);
+    });
   return res;
 };
 
@@ -26,8 +50,32 @@ export const DeleteImageById = async (id: string) => {
   const res = await axios
     .delete(API + "/images/delete", { params: { id } })
     .then((r) => {
-      return r;
+      console.log(r);
     });
 
+  return res;
+};
+
+export const StopContainerById = async (id: string) => {
+  const res = await axios
+    .post(API + "/container/stop", { id: id })
+    .then((r) => {
+      console.log(r);
+    });
+
+  return res;
+};
+
+export const CheckIfCMDIsAvailable = async (image: string) => {
+  const res = await axios.get<CmdPort>(API + "/images/cmd/status", {
+    params: { image },
+  });
+  return res;
+};
+
+export const PostStartContainer = async (image: RunContProps) => {
+  console.log(image);
+  const res = await axios.post(API + "/container/run", image);
+  console.log(res);
   return res;
 };

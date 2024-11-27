@@ -4,16 +4,11 @@ import { EllipsisVertical, Play, Trash2 } from "lucide-react";
 import Seperator from "../components/global/Seperator";
 import { DeleteImageButton } from "./DeleteImageModal";
 import { StartContainerModal } from "./StartContainerModal";
+import { handleFormtTime } from "@/lib/utils";
 
-const ImageCard = ({
-  size,
-  lowestTime,
-  r,
-}: {
-  r: ContainerProps;
-  size: string;
-  lowestTime: string;
-}) => {
+const ImageCard = ({ r }: { r: ContainerProps }) => {
+  let size = (Math.round(r.Size) / 1_000_000).toFixed(2);
+  let lowestTime = handleFormtTime(r.Created);
   return (
     <div className="grid grid-cols-6 my-2 border border-slate-800/80 rounded-lg px-4 py-3">
       <div className="col-span-2">{r.RepoTags[0].split(":")[0]}</div>

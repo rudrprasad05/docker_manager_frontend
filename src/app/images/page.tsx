@@ -6,15 +6,20 @@ import { DotSquare, EllipsisVertical, Play, Trash2 } from "lucide-react";
 import Seperator from "../components/global/Seperator";
 import ImageCard from "./ImageCard";
 import { handleFormtTime } from "@/lib/utils";
+import Error500 from "./Error500";
 
 const page = async () => {
-  const res = await GetAllImages();
+  let res;
+  try {
+    res = await GetAllImages();
+  } catch (error) {
+    return <Error500 />;
+  }
+
   return (
     <div className="">
       {res.data.map((r: ContainerProps, i: number) => {
-        let size = (Math.round(r.Size) / 1_000_000).toFixed(2);
-        let lowestTime = handleFormtTime(r.Created);
-        return <ImageCard r={r} size={size} lowestTime={lowestTime} key={i} />;
+        return <ImageCard r={r} />;
       })}
     </div>
   );

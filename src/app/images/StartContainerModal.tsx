@@ -17,13 +17,21 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { DeleteImageById } from "../api/images";
+import {
+  CheckIfCMDIsAvailable,
+  DeleteImageById,
+  PostStartContainer,
+} from "../api/images";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
+import { useEffect, useLayoutEffect, useState } from "react";
+import { Lock, Unlock } from "lucide-react";
+import Help from "@/components/Help";
+import { toast } from "sonner";
 
-type RunContProps = {
+export type RunContProps = {
   imageName: string;
   containerName: string;
   cmd: string[];
@@ -33,10 +41,10 @@ type RunContProps = {
 
 export const NewContForm = z.object({
   imageName: z.string(),
-  cmd: z.string(),
-  hostPort: z.string(),
+  cmd: z.array(z.string()),
+  hostPort: z.array(z.string()),
   containerName: z.string(),
-  containerPort: z.string(),
+  containerPort: z.array(z.string()),
 });
 export type NewContFormType = z.infer<typeof NewContForm>;
 
@@ -47,27 +55,89 @@ export const StartContainerModal = ({
   cont: Partial<RunContProps>;
   children: React.ReactNode;
 }) => {
+  const [cmd, setCMD] = useState<string[]>([]);
+  const [port, setPort] = useState<string[]>();
+  const [lockCmd, setLockCmd] = useState(false);
+  const [lockPort, setLockPort] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
   const form = useForm<NewContFormType>({
     resolver: zodResolver(NewContForm),
     defaultValues: {
       imageName: cont.imageName || "",
-      cmd: "",
-      hostPort: "",
-      containerPort: "",
+      cmd: [""],
+      hostPort: [""],
+      containerName: "",
+      containerPort: [""],
     },
   });
 
-  async function onSubmit(data: NewContFormType) {}
+  const get = async () => {
+    if (!cont.imageName) return;
+    const res = await CheckIfCMDIsAvailable(cont.imageName);
+    console.log(res);
+    setCMD(res.data.cmd);
+    setPort(res.data.port);
+
+    form.reset({
+      ...cont, // retain current values
+      cmd: res.data.cmd || cont.cmd,
+      containerPort: res.data.port || cont.containerPort,
+      hostPort: res.data.port || cont.containerPort,
+    });
+
+    if (res.data.cmd) {
+      setLockCmd(true);
+    }
+    if (res.data.port) {
+      setLockPort(true);
+    }
+  };
+
+  const handleUnlock = (type: "CMD" | "PORT") => {
+    switch (type) {
+      case "PORT":
+        setLockPort((prev) => !prev);
+        break;
+      case "CMD":
+        setLockCmd((prev) => !prev);
+        break;
+      default:
+        break;
+    }
+  };
+
+  async function onSubmit(data: NewContFormType) {
+    let dN: RunContProps = {
+      imageName: data.imageName,
+      cmd: data.cmd,
+      hostPort: data.hostPort[0],
+      containerName: data.containerName,
+      containerPort: data.containerPort[0],
+    };
+
+    const res = await PostStartContainer(dN)
+      .then((r) => {
+        if (r.status == 200) {
+          setIsOpen(false);
+          toast.success("Container started");
+        }
+      })
+      .catch((e) => {
+        toast.error("An error occured");
+        console.log(e);
+      });
+  }
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild onClick={() => get()}>
+        {children}
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete Image</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to delete this image?
-          </DialogDescription>
+          <DialogTitle>New Container</DialogTitle>
+          <DialogDescription>A new container will be created</DialogDescription>
         </DialogHeader>
 
         <Form {...form}>
@@ -83,7 +153,7 @@ export const StartContainerModal = ({
                   <FormItem className="">
                     <FormLabel>Image Name</FormLabel>
                     <FormControl>
-                      <Input disabled {...field} />
+                      <Input autoComplete="off" disabled {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -99,22 +169,11 @@ export const StartContainerModal = ({
                   <FormItem className="">
                     <FormLabel>Container Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="enter name of container" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
-            />
-            <FormField
-              control={form.control}
-              name="hostPort"
-              render={({ field }) => {
-                return (
-                  <FormItem className="">
-                    <FormLabel>Host port</FormLabel>
-                    <FormControl>
-                      <Input placeholder="8080" {...field} />
+                      <Input
+                        autoComplete="off"
+                        placeholder="enter name of container"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -122,21 +181,66 @@ export const StartContainerModal = ({
               }}
             />
 
-            <FormField
-              control={form.control}
-              name="containerPort"
-              render={({ field }) => {
-                return (
-                  <FormItem className="">
-                    <FormLabel>Container port</FormLabel>
-                    <FormControl>
-                      <Input placeholder="8080" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                );
-              }}
-            />
+            <div className="flex items-center">
+              <FormField
+                control={form.control}
+                name="hostPort"
+                render={({ field }) => {
+                  return (
+                    <FormItem className="grow">
+                      <div className="flex items-center gap-2">
+                        <FormLabel>Host port</FormLabel>
+                        <Help text="Port exposed on server" />
+                      </div>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
+              />
+
+              <div className="w-4 text-center h-min mt-auto mb-2">:</div>
+
+              <FormField
+                control={form.control}
+                name="containerPort"
+                render={({ field }) => {
+                  return (
+                    <FormItem className="grow">
+                      <div className="flex items-center gap-2">
+                        <FormLabel>Container port</FormLabel>
+                        <Help text="Port exposed on docker container" />
+                      </div>
+
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            disabled={lockPort}
+                            placeholder="8080"
+                            {...field}
+                          />
+                          <div
+                            onClick={() => handleUnlock("PORT")}
+                            style={{ transform: "translate(0, -50%)" }}
+                            className="w-6 h-6 flex items-center justify-center absolute top-1/2 right-3"
+                          >
+                            {lockPort && (
+                              <Lock className="w-4 h-4 text-muted-foreground/80" />
+                            )}
+                            {!lockPort && (
+                              <Unlock className="w-4 h-4 text-muted-foreground/80" />
+                            )}
+                          </div>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
+              />
+            </div>
 
             <FormField
               control={form.control}
@@ -144,9 +248,30 @@ export const StartContainerModal = ({
               render={({ field }) => {
                 return (
                   <FormItem className="">
-                    <FormLabel>Run Command</FormLabel>
+                    <div className="flex items-center gap-2">
+                      <FormLabel>Run Command</FormLabel>
+                      <Help text="Command used to run docker contaier" />
+                    </div>
                     <FormControl>
-                      <Input placeholder="8080" {...field} />
+                      <div className="relative">
+                        <Input
+                          disabled={lockCmd}
+                          placeholder="8080"
+                          {...field}
+                        />
+                        <div
+                          onClick={() => handleUnlock("CMD")}
+                          style={{ transform: "translate(0, -50%)" }}
+                          className="w-6 h-6 flex items-center justify-center absolute top-1/2 right-3"
+                        >
+                          {lockCmd && (
+                            <Lock className="w-4 h-4 text-muted-foreground/80" />
+                          )}
+                          {!lockCmd && (
+                            <Unlock className="w-4 h-4 text-muted-foreground/80" />
+                          )}
+                        </div>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
