@@ -27,9 +27,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { useEffect, useLayoutEffect, useState } from "react";
-import { Lock, Unlock } from "lucide-react";
+import { Loader2, Lock, Unlock } from "lucide-react";
 import Help from "@/components/Help";
 import { toast } from "sonner";
+import { AxiosError } from "axios";
 
 export type RunContProps = {
   imageName: string;
@@ -60,6 +61,8 @@ export const StartContainerModal = ({
   const [lockCmd, setLockCmd] = useState(false);
   const [lockPort, setLockPort] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [isInfoLoaded, setIsInfoLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<NewContFormType>({
     resolver: zodResolver(NewContForm),
@@ -71,13 +74,14 @@ export const StartContainerModal = ({
       containerPort: [""],
     },
   });
+  const formData = form.watch();
 
   const get = async () => {
     if (!cont.imageName) return;
     const res = await CheckIfCMDIsAvailable(cont.imageName);
-    console.log(res);
     setCMD(res.data.cmd);
     setPort(res.data.port);
+    setIsInfoLoaded(true);
 
     form.reset({
       ...cont, // retain current values
@@ -108,6 +112,7 @@ export const StartContainerModal = ({
   };
 
   async function onSubmit(data: NewContFormType) {
+    setIsLoading(true);
     let dN: RunContProps = {
       imageName: data.imageName,
       cmd: data.cmd,
@@ -120,12 +125,23 @@ export const StartContainerModal = ({
       .then((r) => {
         if (r.status == 200) {
           setIsOpen(false);
+          setIsLoading(false);
+
           toast.success("Container started");
         }
       })
       .catch((e) => {
-        toast.error("An error occured");
-        console.log(e);
+        if (e.response.status == 403) {
+          toast.error("Port in use");
+          form.reset({
+            ...form.watch(),
+            hostPort: [""],
+          });
+        } else {
+          toast.error("An error occured");
+          console.log(e);
+        }
+        setIsLoading(false);
       });
   }
 
@@ -139,6 +155,8 @@ export const StartContainerModal = ({
           <DialogTitle>New Container</DialogTitle>
           <DialogDescription>A new container will be created</DialogDescription>
         </DialogHeader>
+
+        {!isInfoLoaded && <>Loading</>}
 
         <Form {...form}>
           <form
@@ -279,7 +297,9 @@ export const StartContainerModal = ({
               }}
             />
 
-            <Button type="submit">Submit</Button>
+            <Button type="submit">
+              {isLoading && <Loader2 className="animate-spin" />}Submit
+            </Button>
           </form>
         </Form>
       </DialogContent>

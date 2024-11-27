@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import SideNavProvider from "./components/SideNavProvider";
 import { Toaster } from "@/components/ui/sonner";
+import Head from "next/head";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,6 +17,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <title>Docker Demon</title>
+        <link rel="icon" href="/favicon.ico" />
+      </head>
+
       <body className={`antialiased`}>
         <Toaster />
         <SideNavProvider>{children}</SideNavProvider>

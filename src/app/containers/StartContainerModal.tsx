@@ -9,12 +9,24 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { DeleteImageById, StopContainerById } from "../api/images";
+import {
+  DeleteImageById,
+  PostStartExistingContainer,
+  StopContainerById,
+} from "../api/images";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-const StopContainerModal = ({
+export type RunContProps = {
+  imageName: string;
+  containerName: string;
+  cmd: string[];
+  hostPort: string;
+  containerPort: string;
+};
+
+const StartContainerModal = ({
   children,
   id,
 }: {
@@ -24,11 +36,10 @@ const StopContainerModal = ({
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const handleDelete = async () => {
-    const res = await StopContainerById(id).then((r) => {
+    const res = await PostStartExistingContainer(id).then((r) => {
       setIsOpen(false);
-      toast.success("Container Closed");
+      toast.success("Container Started");
       router.refresh();
-      console.log(r);
     });
   };
 
@@ -37,14 +48,14 @@ const StopContainerModal = ({
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Stop Container</DialogTitle>
+          <DialogTitle>Start Container</DialogTitle>
           <DialogDescription>
-            Are you sure you want to Stop this Container?
+            Are you sure you want to start this Container?
           </DialogDescription>
         </DialogHeader>
 
         <Button variant={"default"} onClick={() => handleDelete()}>
-          Stop
+          Start
         </Button>
         <Button variant={"secondary"} onClick={() => setIsOpen(false)}>
           Cancel
@@ -54,4 +65,4 @@ const StopContainerModal = ({
   );
 };
 
-export default StopContainerModal;
+export default StartContainerModal;

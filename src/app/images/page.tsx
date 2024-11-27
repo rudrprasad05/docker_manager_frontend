@@ -7,6 +7,7 @@ import Seperator from "../components/global/Seperator";
 import ImageCard from "./ImageCard";
 import { handleFormtTime } from "@/lib/utils";
 import Error500 from "./Error500";
+import Head from "next/head";
 
 const page = async () => {
   let res;

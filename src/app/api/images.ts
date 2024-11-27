@@ -66,6 +66,12 @@ export const StopContainerById = async (id: string) => {
   return res;
 };
 
+export const PostStartExistingContainer = async (id: string) => {
+  const res = await axios.post(API + "/container/run-existing", { id: id });
+  console.log(res);
+  return res;
+};
+
 export const CheckIfCMDIsAvailable = async (image: string) => {
   const res = await axios.get<CmdPort>(API + "/images/cmd/status", {
     params: { image },
@@ -74,8 +80,6 @@ export const CheckIfCMDIsAvailable = async (image: string) => {
 };
 
 export const PostStartContainer = async (image: RunContProps) => {
-  console.log(image);
   const res = await axios.post(API + "/container/run", image);
-  console.log(res);
   return res;
 };
