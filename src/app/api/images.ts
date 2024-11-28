@@ -56,6 +56,19 @@ export const DeleteImageById = async (id: string) => {
   return res;
 };
 
+export const DeleteContainerById = async (id: string) => {
+  console.log(id);
+  const res = await axios.delete(API + "/container/delete", { params: { id } });
+
+  return res;
+};
+
+export const PullImage = async (imageName: string) => {
+  const res = await axios.post(API + "/image/pull", { imageName });
+  console.log("Image pulled:", res.data);
+  return res;
+};
+
 export const StopContainerById = async (id: string) => {
   const res = await axios
     .post(API + "/container/stop", { id: id })

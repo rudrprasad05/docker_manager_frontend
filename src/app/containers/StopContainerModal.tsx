@@ -28,7 +28,6 @@ const StopContainerModal = ({
       setIsOpen(false);
       toast.success("Container Closed");
       router.refresh();
-      console.log(r);
     });
   };
 

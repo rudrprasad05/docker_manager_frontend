@@ -1,6 +1,6 @@
 "use client";
 
-import { Cuboid, LucideDock } from "lucide-react";
+import { Cuboid, LucideDock, ShoppingCart } from "lucide-react";
 import React from "react";
 import { DockerSvg } from "./svg";
 import Link from "next/link";
@@ -18,6 +18,11 @@ const paths = [
     slug: "/containers",
     name: "Containers",
     icon: <Cuboid />,
+  },
+  {
+    slug: "/hub",
+    name: "Hub",
+    icon: <ShoppingCart />,
   },
 ];
 

@@ -7,6 +7,7 @@ import { handleFormtTime } from "@/lib/utils";
 import clsx from "clsx";
 import StopContainerModal from "./StopContainerModal";
 import StartContainerModal from "./StartContainerModal";
+import { DeleteContainerModal } from "./DeleteContainerModal";
 
 const ContainerCard = ({ r }: { r: ContainerProps }) => {
   let size = (Math.round(r.SizeRw || 1_000_000) / 1_000_000).toFixed(2);
@@ -41,11 +42,7 @@ const ContainerCard = ({ r }: { r: ContainerProps }) => {
       </div>
 
       <div className="flex gap-2 items-center justify-between">
-        <div className="flex items-center">
-          <Seperator />
-          {/* <DeleteImageButton id={r.Id}>
-            <Trash2 className="w-4 h-4" />
-          </DeleteImageButton> */}
+        <div className="flex items-center gap-4">
           {isRunning && (
             <StopContainerModal id={r.Id}>
               <Square className="w-4 h-4" />
@@ -56,6 +53,9 @@ const ContainerCard = ({ r }: { r: ContainerProps }) => {
               <Play className="w-4 h-4" />
             </StartContainerModal>
           )}
+          <DeleteContainerModal id={r.Id}>
+            <Trash2 className="w-4 h-4" />
+          </DeleteContainerModal>
         </div>
       </div>
     </div>
