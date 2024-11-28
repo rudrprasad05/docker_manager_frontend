@@ -2,12 +2,17 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 
 const SearchBar = () => {
   const router = useRouter();
-  const [search, setSearch] = useState("");
+  const searchParams = useSearchParams();
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+
+  const handleSearch = () => {
+    router.push("/hub/?search=" + search);
+  };
   return (
     <div className="w-full flex items-center gap-4">
       <Input
@@ -16,7 +21,7 @@ const SearchBar = () => {
         placeholder="enter image name"
         className="grow"
       />
-      <Button>Search</Button>
+      <Button onClick={() => handleSearch()}>Search</Button>
     </div>
   );
 };
