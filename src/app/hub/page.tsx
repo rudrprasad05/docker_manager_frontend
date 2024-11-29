@@ -4,6 +4,7 @@ import React from "react";
 import { GetAllContainers } from "../api/images";
 import Error500 from "../images/Error500";
 import SearchBar from "./SearchBar";
+import axios from "axios";
 
 interface Port {
   IP?: string; // Optional field (omitempty in Go)
@@ -32,16 +33,20 @@ export interface ContainerProps {
   NetworkSettings?: any; // Replace `any` with the appropriate type if available
 }
 
+interface SearchResult {
+  name: string;
+  description: string;
+  starCount: string;
+  isOfficial: string;
+}
+
 const page = async () => {
-  let res;
-  try {
-    res = await GetAllContainers();
-  } catch (error) {
-    return <Error500 />;
-  }
+  const response = await axios.get<SearchResult[]>(
+    "http://localhost:8081/docker/images/search"
+  );
   return (
     <div className="">
-      <SearchBar />
+      <SearchBar defaultImages={response.data} />
     </div>
   );
 };

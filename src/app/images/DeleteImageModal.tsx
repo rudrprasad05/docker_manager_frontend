@@ -10,6 +10,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { DeleteImageById } from "../api/images";
+import { toast } from "sonner";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export const DeleteImageButton = ({
   children,
@@ -18,12 +21,22 @@ export const DeleteImageButton = ({
   id: string;
   children: React.ReactNode;
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+
   const handleDelete = async () => {
-    const res = await DeleteImageById(id).then((r) => console.log(r));
+    try {
+      const res = await DeleteImageById(id);
+      if (res.status == 200) {
+        toast.success("Image deleted");
+        setIsOpen(false);
+        router.refresh();
+      }
+    } catch (error) {}
   };
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -34,7 +47,7 @@ export const DeleteImageButton = ({
         </DialogHeader>
 
         <Button onClick={() => handleDelete()}>Delete</Button>
-        <Button>Cancel</Button>
+        <Button variant={"secondary"}>Cancel</Button>
       </DialogContent>
     </Dialog>
   );

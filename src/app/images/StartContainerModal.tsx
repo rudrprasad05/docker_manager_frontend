@@ -42,10 +42,10 @@ export type RunContProps = {
 
 export const NewContForm = z.object({
   imageName: z.string(),
-  cmd: z.array(z.string()),
-  hostPort: z.array(z.string()),
+  cmd: z.any(),
+  hostPort: z.any(),
   containerName: z.string(),
-  containerPort: z.array(z.string()),
+  containerPort: z.any(),
 });
 export type NewContFormType = z.infer<typeof NewContForm>;
 

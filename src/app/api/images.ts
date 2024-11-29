@@ -47,11 +47,7 @@ export const GetAllContainers = async () => {
 };
 
 export const DeleteImageById = async (id: string) => {
-  const res = await axios
-    .delete(API + "/images/delete", { params: { id } })
-    .then((r) => {
-      console.log(r);
-    });
+  const res = await axios.delete(API + "/images/delete", { params: { id } });
 
   return res;
 };

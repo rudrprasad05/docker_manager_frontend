@@ -41,6 +41,7 @@ const SideNav = () => {
         <div className="my-6 flex flex-col gap-4">
           {paths.map((l) => (
             <Link
+              key={l.slug}
               href={l.slug}
               className={clsx(
                 "flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-secondary transition",
